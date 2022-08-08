@@ -1,4 +1,3 @@
-
 # Entendendo os Conceitos de Container
 
 ## Artefatos de Um Container Environment:
