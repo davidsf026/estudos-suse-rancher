@@ -58,8 +58,8 @@ Detalhes do objeto que está sendo criado.
 ## Configurações de Deployment Multi-Pod
 
 - **ReplicaSet:** É o recurso responsável por manter um número pré-determinado de réplicas de um pod, em execução.
-- **StatefulSet:**
 	- Aplicações stateful são aquelas executadas com base no contexto das transações anteriores, ou seja precisam de persistência.
+- **StatefulSet:**
 	- O StatefulSet define para cada pod (vindos da mesma spec) um identificador de persistência, logo, seus dados não irão se misturar.
 - **DaemonSet:** Para definir em quais nodes determinada aplicação irá rodar.
 - **Deployment:**
@@ -75,3 +75,62 @@ Detalhes do objeto que está sendo criado.
 		- Usar o status de um Deployment como métrica para ver se o rollout está sendo executado com sucesso.
 
 # Usando o Recurso Deployments
+
+- Um recurso de Deployment é CRIA ou ATUALIZA Pods e ReplicaSets, esse é declarativo.
+- Estratégias de Deployment (atualização):
+	- Rolling Update
+	- Recreation Update
+- Quando um Deployment é apagado todos os recursos relacionados a eles também serão apagados.
+- Para deletar um Pod de um Deployment você precisará apagar ou alterar o Deployment, pois, se apenas o Pod for apagado ele será recriado.
+
+# Configurar Rede Para Aplicações no Kubernetes
+
+## Serviço
+
+- Serviços são recurso que permitem que apps sejam acessíveis pela internet, para usuários ou até mesmo para outros aplicativos.
+- Um serviço encontra um Pod através de uma label.
+- Provê uma interface de rede estável para as aplicações.
+
+### Tipos de Serviço:
+
+#### ClusterIP
+
+- A aplicação só pode ser acessada DENTRO do cluster.
+- Nem toda aplicação precisa de ser acessada fora do cluster. Um exemplo são bancos de dado, muitas das vezes esse só precisa ser acessível para a aplicação que está dentro cluster.
+- Todo Pod tem o seu próprio IP interno e por padrão esse não fica disponível para fora do cluster.
+
+#### NodePort
+
+- A aplicação pode ser acessada de FORA do cluster.
+- As aplicações expostas por esse tipo de serviço são acessíveis a partir de uma porta reservada para a mesma: `http://IP-ou-FQDN:PORTA`
+- A porta é acessível em todos os nodes.
+- É preciso definir qual porta está sendo escutada no container (port) e qual porta será exposta no IP/FQDN do cluster (nodePort).
+- Se o nodePort for definido como 0, será definida uma porta disponível aleatória.
+- Por padrão as portas disponíveis para nodePort são de 30000 à 32767.
+
+#### LoadBalancer
+
+- É mais usado na cloud, mas é possível sim, instalar um LoadBalancer em um cluster bare metal.
+- O LoadBalancer não vem nativo no Kubernetes, é necessário instalar softwares de terceiros como o Metallb.
+- Nesse caso o serviço vai bater no LoadBalancer e o resto é com ele.
+
+# Variáveis de Ambiente
+
+- Podem ser definidas quando um pod é deployado.
+- São comumente usadas para configurar a aplicação (as possíveis variáveis de ambiente de configuração normalmente ficam descritas na documentação da imagem).
+- As variáveis ficam na seção `env` do YAML.
+
+# ConfigMaps
+
+- É outra forma de ter variáveis de ambiente no seu Pod.
+- É definida fora do manifesto, pois é um objeto do Kubernetes, logo, permite ter mais flexibilidade na definição das variáveis de ambiente.
+- Para chamar um ConfigMap na hora de definir a variáveis de ambiente do Pod deve-se seguir a seguinte estrutura:
+
+	    envFrom:
+	      - configMapRef:
+	          name: my-configmap
+
+# Secrets
+
+- Ao definir via YAML, devem ser codificadas em base64.
+- Secrets podem ser armazenados em Chave/Valor ou em arquivos.
