@@ -134,3 +134,49 @@ Detalhes do objeto que está sendo criado.
 
 - Ao definir via YAML, devem ser codificadas em base64.
 - Secrets podem ser armazenados em Chave/Valor ou em arquivos.
+
+# Segregação de Recursos (Labels, Selectors, Taints e etc.)
+
+Labels e Selector são declarados na MESMA SEÇÃO, a `Labels` (na minha opinião eles são basicamente a mesma coisa.)
+
+## Labels
+
+- Metadata para objetos que geralmente representam identidade.
+- Podem ser definidos diretamente nos manifestos ou manualmente.
+
+## Selectors
+
+- Tem por função segregar requisições para determinados objetos, por exemplo: Somente os pods com o selector "escalável" terão 8 réplicas.
+
+## NodeSelectors
+
+- Labels que são aplicadas em Nodes.
+- Segregar requisições para rodar em determinados Nodes, podendo ser duas formas, por atração e por rejeição
+	- Rejeição: Pod NÃO será deployado em Nodes com a label "teste".
+	- Atração: Pod SÓ será deployado em Nodes com a label "teste".
+- Para segregar um recurso para determinado node, deve-se seguir a seguinte sintaxe do recurso a ser deployado.
+
+		spec:
+		  nodeSelector:
+		    key: value
+
+## Taints
+
+- Exemplo:
+
+	    kubectl taint nodes worker01 frutafavorita=maracuja:NoSchedule
+	    
+Esse comando diz que objetos que NÃO tiverem essa label NÃO poderão ser schedulados.
+
+## Tolerations
+
+- Exemplo (YAML de um Pod):
+
+	    spec:
+	      tolerations:
+	      - key: "frutafavorita"
+	        operator: "Equal"
+			value: "maracuja"
+			effect: "NoSchedule"
+			
+O Pod só poderá ser Deployado em nodes que tiverem uma taint com esses parâmetros.
